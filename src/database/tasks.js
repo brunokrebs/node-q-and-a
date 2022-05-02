@@ -27,7 +27,7 @@ async function updateTask(id, task) {
   const database = await getDatabase();
   delete task._id;
   await database.collection(collectionName).update(
-    { _id: new ObjectID(id) },
+    { _id: new ObjectId(id) },
     {
       $set: {
         ...task,

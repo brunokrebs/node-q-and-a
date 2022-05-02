@@ -22,7 +22,18 @@ app.use(morgan("combined"));
 
 // defining an endpoint to return all tasks
 app.get("/", async (req, res) => {
-  res.send(await getTasks());
+  const query = req.query.query;
+  if (!query) {
+    res.send(await getTasks());
+    return;
+  }
+
+  const tasks = await getTasks();
+  const filteredTasks = tasks.filter((task) => {
+    if (!task.title) return false;
+    return task.title.toLowerCase().includes(query.toLowerCase());
+  });
+  res.send(filteredTasks);
 });
 
 app.post("/", async (req, res) => {
