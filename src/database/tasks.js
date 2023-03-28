@@ -1,39 +1,31 @@
-const { ObjectId } = require("mongodb");
-const { getDatabase } = require("./mongo");
+const tasks = [];
 
-const collectionName = "tasks";
-
-async function insertTask(task) {
-  const database = await getDatabase();
-  const { insertedId } = await database
-    .collection(collectionName)
-    .insertOne(task);
-  return insertedId;
+function insertTask(task) {
+  tasks.push({
+    _id: Date.now(),
+    ...task,
+  })
 }
 
-async function getTasks() {
-  const database = await getDatabase();
-  return await database.collection(collectionName).find({}).toArray();
+function getTasks() {
+  return tasks;
 }
 
-async function deleteTask(id) {
-  const database = await getDatabase();
-  await database.collection(collectionName).deleteOne({
-    _id: new ObjectId(id),
-  });
+function deleteTask(id) {
+  const index = tasks.findIndex(t => t._id == id);
+
+  if (index !== -1) {
+    tasks.splice(index, 1);
+  }
 }
 
-async function updateTask(id, task) {
-  const database = await getDatabase();
-  delete task._id;
-  await database.collection(collectionName).update(
-    { _id: new ObjectId(id) },
-    {
-      $set: {
-        ...task,
-      },
-    }
-  );
+function updateTask(id, task) {
+  const index = tasks.findIndex(t => t._id == id);
+  const taskFound = tasks[index];
+
+  if (index !== -1) {
+    tasks.splice(index, 1, { ...taskFound, ...task, _id: id });
+  }
 }
 
 module.exports = {
